@@ -1,7 +1,5 @@
-let ctx = new (window.AudioContext || window.webkitAudioContext)()
-
 // audio context
-export const ctx = ctx
+export const ctx = new (window.AudioContext || window.webkitAudioContext)()
 
 // audio out
 export const output = ctx.destination
@@ -33,7 +31,7 @@ export const filters = {NOTCH, PEAKING, ALLPASS, LOWPASS, BANDPASS, HIGHPASS, LO
 
 export const Modulation = ({type=SET, time=0, value=0}) => ({type, time, value})
 
-const AD = ({gain=1, attackTime=0.5, decayTime=0.5, attackType=LINEAR, decayType=LINEAR}) => {
+export const AD = ({gain=1, attackTime=0.5, decayTime=0.5, attackType=LINEAR, decayType=LINEAR}) => {
   return [
     Modulation({type: SET, value: 0.01}),
     Modulation({type: attackType, value: gain, time: attackTime}),
@@ -41,37 +39,39 @@ const AD = ({gain=1, attackTime=0.5, decayTime=0.5, attackType=LINEAR, decayType
   ]
 }
 
-const ADSR = ({
+export const ADSR = ({
   gain=1, 
   attackTime=0.5, 
   attackType=LINEAR, 
   decayTime=0.5, 
   decayType=LINEAR,
   sustainTime=0.5, 
-  sustainLevel=0.8
-  sustainType=LINEAR,
+  sustainLevel=0.5,
   releaseTime=0.5, 
   releaseType=LINEAR,
 }) => {
   return [
-    Modulation({type: SET, value: 0.01}),
+    Modulation({type: SET, value: 0.01, time: 0}),
     Modulation({type: attackType, value: gain, time: attackTime}),
-    Modulation({type: decayType, value: 0.01, time: decayTime}),
+    Modulation({type: decayType, value: gain * sustainLevel, time: decayTime}),
+    Modulation({type: SET, value: gain * sustainLevel, time: sustainTime}),
+    Modulation({type: releaseType, value: 0.01, time: releaseTime}),
   ]
 }
 
-export const applyModulation = ({subject, steps}) => {
-  let now = context.currentTime
+export const applyEnvelope = ({subject, steps}) => {
+  let ellapsed = ctx.currentTime
   steps.forEach(mod => {
+    ellapsed += mod.time
     switch(mod.type){
       case SET:
-        subject.setValueAtTime(mod.value, now + mod.time)
+        subject.setValueAtTime(mod.value, ellapsed)
         break;
       case LINEAR:
-        subject.linearRampToValueAtTime(mod.value, now + mod.time)
+        subject.linearRampToValueAtTime(mod.value, ellapsed)
         break;
       case EXPONENTIAL:
-        subject.exponentialRampToValueAtTime(mod.value, now + mod.time)
+        subject.exponentialRampToValueAtTime(mod.value, ellapsed)
         break;
     }
   })
@@ -82,7 +82,7 @@ export const applyParam = ({subject, value}) => {
   if(typeof value === 'number')
     subject.setValueAtTime(value, now)
   else if(Array.isArray(value))
-    applyModulation({subject, steps: value})
+    applyEnvelope({subject, steps: value})
   else if(value.connect)
     value.connect(subject)
   else 

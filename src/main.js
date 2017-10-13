@@ -11,8 +11,4 @@ window.onload = () => {
 }
 
 window.onresize = () => {
-  //width = canvas.width = window.innerWidth
-  //height = canvas.height = window.innerHeight
-  //ctx.clearRect(0, 0, width, height)
-  //draw()
 }
