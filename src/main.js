@@ -1,17 +1,10 @@
 import './style/main.scss'
-import * as audio from './lib/gen.js'
+
+import * as audio from './lib/audio.js'
+import * as dom from './lib/dom.js'
 
 window.audio = audio
-
-//import * as synth from './lib/synth.js'
-
-window.onEvent = (event) => (query, cb) => 
-  document.querySelector(query).addEventListener(event, cb)
-
-window.onClick = onEvent('click')
-window.onMouseMove = onEvent('mousemove')
-window.onClick = onEvent('click')
-window.onClick = onEvent('click')
+window.dom = dom
 
 
 window.onload = () => {
