@@ -1,0 +1,26 @@
+body { background: #aaaa00; }
+
+.thump {
+  height: 100%;
+}
+
+
+.trigger {
+  width: auto;
+  float: left;
+}
+body {
+  input, button {
+    width: 2em;
+    //padding: 0.5em;
+    margin: 0.5em;
+    &:hover {
+      background: #444;
+    }
+
+    &:active {
+      background: #0f0; 
+    }
+  }
+}
+
