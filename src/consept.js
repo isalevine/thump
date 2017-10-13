@@ -1,4 +1,0 @@
-
-let def = {
-  type: 
-}

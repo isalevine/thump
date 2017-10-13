@@ -1,5 +1,11 @@
 let ctx = new (window.AudioContext || window.webkitAudioContext)()
 
+// audio context
+export const ctx = ctx
+
+// audio out
+export const output = ctx.destination
+
 // WAVE SHAPES
 export const SINE = 'sine'
 export const SQUARE = 'square'
@@ -24,7 +30,35 @@ export const LOWSHELF = 'lowshelf'
 export const HIGHSHELF = 'highshelf'
 export const filters = {NOTCH, PEAKING, ALLPASS, LOWPASS, BANDPASS, HIGHPASS, LOWSHELF, HIGHSHELF}
 
+
 export const Modulation = ({type=SET, time=0, value=0}) => ({type, time, value})
+
+const AD = ({gain=1, attackTime=0.5, decayTime=0.5, attackType=LINEAR, decayType=LINEAR}) => {
+  return [
+    Modulation({type: SET, value: 0.01}),
+    Modulation({type: attackType, value: gain, time: attackTime}),
+    Modulation({type: decayType, value: 0.01, time: decayTime}),
+  ]
+}
+
+const ADSR = ({
+  gain=1, 
+  attackTime=0.5, 
+  attackType=LINEAR, 
+  decayTime=0.5, 
+  decayType=LINEAR,
+  sustainTime=0.5, 
+  sustainLevel=0.8
+  sustainType=LINEAR,
+  releaseTime=0.5, 
+  releaseType=LINEAR,
+}) => {
+  return [
+    Modulation({type: SET, value: 0.01}),
+    Modulation({type: attackType, value: gain, time: attackTime}),
+    Modulation({type: decayType, value: 0.01, time: decayTime}),
+  ]
+}
 
 export const applyModulation = ({subject, steps}) => {
   let now = context.currentTime
@@ -55,7 +89,6 @@ export const applyParam = ({subject, value}) => {
     throw new TypeError('value param type is not supported')
 }
 
-export const MainOutput = ({}) => ctx.destination
 
 export const Osc = ({start=0, stop=null, frequency=220, type=SINE, detune=0}) => {
   let now = ctx.currentTime
